@@ -1,0 +1,107 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ball Cannon</title>
+  </head>
+  <body onload="init()">
+    <div id="cannon"></div>
+    <input
+      type="range"
+      min="0"
+      max="45"
+      value="22.5"
+      class="slider"
+      id="myRange"
+      oninput="adjustCannon()"
+    />
+  </body>
+</html>
+
+<script>
+  var canvas = document.createElement("canvas"),
+    ctx = canvas.getContext("2d"),
+    container,
+    cannonAngle,
+    balls = [];
+
+  function init() {
+    setupCanvas();
+    draw();
+  }
+
+  function setupCanvas() {
+    container = document.createElement("div");
+    container.className = "container";
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    document.body.appendChild(container);
+    container.appendChild(canvas);
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    adjustCannon();
+  }
+
+  adjustCannon = () => {
+    cannonAngle = parseInt(myRange.value);
+    cannon.style.transform = "rotate(" + cannonAngle * 2 + "deg)";
+    vx = cannonAngle * 1.5;
+    vy = cannonAngle - 45;
+  };
+
+  function draw() {
+    // clear canvas to repaint frame
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // add new ball to canvas on every animation frame
+    balls.push({
+      y: canvas.height - 90 + cannonAngle,
+      x: cannonAngle + 10,
+      radius: 10,
+      status: 0,
+      color: "red",
+      vy: vy,
+      vx: vx,
+    });
+    balls.forEach((ball, i) => {
+      // if the ball fell offscreen, remove it from array
+      if (ball.x > canvas.width || ball.y > canvas.height) {
+        balls.splice(i, 1);
+      } else {
+        // drawn the ball
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, false);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+        ctx.closePath();
+
+        // record the next position of the ball, will get redrawn in new location on next animation frame
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        ball.vy += 1; // gravity
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+</script>
+
+<style>
+  body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #myRange {
+    position: absolute;
+    bottom: 0;
+  }
+
+  #cannon {
+    width: 20px;
+    height: 40px;
+    background: blue;
+    position: absolute;
+    bottom: 20px;
+  }
+</style>
